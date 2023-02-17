@@ -2,6 +2,8 @@
 #include <stdlib.h>     // For wait(), WIFSTOPPED(), WSTOPSIG(), WIFEXITED(),
                         //   WIFSIGNALED(), SIGTRAP, exit()
 #include <sys/ptrace.h> // For ptrace()
+#include <sys/types.h>  // For ptrace()
+#include <sys/wait.h>   // For wait() in Linux
 #include <unistd.h>     // For fork(), excl()
 
 int main(void) {
