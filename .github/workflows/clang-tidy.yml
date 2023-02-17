@@ -1,0 +1,17 @@
+name: clang-tidy
+on:
+  pull_request:
+  push:
+    branches:
+      - "main"
+
+jobs:
+  clang-tidy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: sudo add-apt-repository "deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-15 main"
+      - run: sudo add-apt-repository "deb-src http://apt.llvm.org/bionic/ llvm-toolchain-bionic-15 main"
+      - run: sudo apt-get -y install clang clang-tidy
+      - run: sudo apt-get -y install libcriterion-dev
+      - run: make lint
