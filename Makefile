@@ -23,6 +23,9 @@ SRCS=$(wildcard $(SRC)/*.c)
 OBJS=$(filter-out $(BIN_OBJS), $(patsubst $(SRC)/%.c, $(OBJ)/%.o, $(SRCS)))
 TESTS=$(wildcard $(TEST)/*.c)
 
+# Docker
+CONTAINER=ptrace-project
+
 # Compilation rules
 .SECONDARY: $(OBJS) $(BIN_OBJS)
 
@@ -53,7 +56,7 @@ $(TEST_BIN):
 	mkdir $@
 
 # Pseudo-targets
-.PHONY: test clean install-hooks run-hooks lint
+.PHONY: test clean install-hooks run-hooks lint run-docker
 
 test: $(TEST_BINS)
 	for test_file in $^; do ./$$test_file; done
@@ -72,3 +75,7 @@ run-hooks:
 
 lint:
 	clang-tidy $(SRCS) $(patsubst $(OBJ)/%.o, $(SRC)/%.h, $(OBJS)) $(TESTS)
+
+run-docker: $(BINS)
+	DOCKER_SCAN_SUGGEST=false docker build -qt $(CONTAINER) .
+	docker run $(CONTAINER) $(ARGS)
