@@ -1,10 +1,9 @@
 #include <stdio.h>      // For printf
 #include <stdlib.h>     // For wait(), WIFSTOPPED(), WSTOPSIG(), WIFEXITED(),
                         //   WIFSIGNALED(), SIGTRAP, exit()
-#include <mach/mach.h>  // For task_for_pid() and mach_task_self()
 #include <sys/ptrace.h> // For ptrace()
 #include <sys/types.h>  // For ptrace()
-#include <sys/wait.h>   // For wait() in Linux
+#include <sys/wait.h>   // For wait()
 #include <unistd.h>     // For fork(), excl(), execvp()
 
 int main(int argc, char *argv[]) {
