@@ -20,6 +20,7 @@
 struct opts {
   bool verbose;
   bool pause;
+  int start_from;
 };
 
 char getchar_without_echo(void);
@@ -32,11 +33,10 @@ int do_child(int argc, char *argv[]);
 
 int do_trace(pid_t child, struct opts options);
 
+struct opts process_args(int argc, char *argv[]);
+
 int main(int argc, char *argv[]) {
-  struct opts options = {
-      .verbose = true,
-      .pause = false,
-  };
+  struct opts options = process_args(argc, argv);
 
   pid_t pid = fork();
 
@@ -47,7 +47,7 @@ int main(int argc, char *argv[]) {
     return 1;
   // On child process
   case 0:
-    return do_child(argc - 1, argv + 1);
+    return do_child(argc - options.start_from, argv + options.start_from);
   // On parent process
   default:
     return do_trace(pid, options);
@@ -148,4 +148,28 @@ void print_table(int table[], int total) {
           DIM "[RESULT]" RESET " " BOLD "%11s" RESET "\t" BOLD "%15d" RESET
               "\n",
           "TOTAL", total);
+}
+
+struct opts process_args(int argc, char *argv[]) {
+  bool verbose = false;
+  bool pause = false;
+  for (int i = 1; i < argc; i++) {
+    if (argv[i][0] == '-') {
+      if (strcmp(argv[i], "-v") == 0) {
+        verbose = true;
+      } else if (strcmp(argv[i], "-V") == 0) {
+        verbose = true;
+        pause = true;
+      } else {
+        fprintf(stderr, "Invalid option '%s' detected. Aborting.\n", argv[i]);
+        exit(1);
+      }
+    } else {
+      struct opts result = {
+          .verbose = verbose, .pause = pause, .start_from = i};
+      return result;
+    }
+  }
+  fprintf(stderr, "Program name must be specified.\n");
+  exit(1);
 }
