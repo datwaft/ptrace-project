@@ -59,30 +59,29 @@ int do_child(int argc, char *argv[]) {
 }
 
 int do_trace(pid_t child, struct opts options) {
-  bool in_call = false;
   int counter = 0;
 
   int status;
   waitpid(child, &status, 0);
   while (WIFSTOPPED(status) && WSTOPSIG(status) == SIGTRAP) {
-    if (!in_call) { // While the system call is executing
-      struct user_regs_struct regs;
-      ptrace(PTRACE_GETREGS, child, NULL, &regs);
-      if (options.verbose) {
-        print_system_call(regs);
-      }
-
-      in_call = true;
-      counter += 1;
-
-      if (options.pause) {
-        getchar_without_echo();
-      }
-    } else { // After the system call has finished
-      in_call = false;
-    }
     ptrace(PTRACE_SYSCALL, child, NULL, 0);
     waitpid(child, &status, 0);
+    // While the system call is executing
+    struct user_regs_struct regs;
+    ptrace(PTRACE_GETREGS, child, NULL, &regs);
+    // ---
+
+    ptrace(PTRACE_SYSCALL, child, NULL, 0);
+    waitpid(child, &status, 0);
+    // After the system call finished executing
+    if (options.verbose) {
+      print_system_call(regs);
+    }
+    if (options.pause) {
+      getchar_without_echo();
+    }
+    counter += 1;
+    // ---
   }
   fprintf(stderr,
           DIM "[RESULT]" RESET " The total number of system calls was " BOLD
