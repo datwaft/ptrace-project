@@ -2,9 +2,9 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/ptrace.h>
-#include <sys/reg.h>
-#include <sys/types.h>
+#include <sys/time.h>
 #include <sys/user.h>
 #include <sys/wait.h>
 #include <termios.h>
@@ -91,18 +91,25 @@ int do_trace(pid_t child, struct opts options) {
     // ---
   }
 
+  fprintf(stderr, DIM "[RESULT]" RESET " " BOLD "SYSTEM CALL" RESET "\t" BOLD
+                      "NUMBER OF CALLS" RESET "\n");
+  fprintf(stderr, DIM "[RESULT]" RESET " " BOLD "-----------" RESET "\t" BOLD
+                      "---------------" RESET "\n");
   for (size_t system_call = 0; system_call < 512; system_call++) {
     if (table[system_call] != 0) {
       fprintf(stderr,
-              DIM "[RESULT]" RESET " system call " BLUE "%zu" RESET
-                  " was called " BOLD "%d" RESET " times.\n",
+              DIM "[RESULT]" RESET " " BLUE BOLD "%11zu" RESET "\t"
+                  "%15d"
+                  "\n",
               system_call, table[system_call]);
     }
   }
+  fprintf(stderr, DIM "[RESULT]" RESET " " BOLD "-----------" RESET "\t" BOLD
+                      "---------------" RESET "\n");
   fprintf(stderr,
-          DIM "[RESULT]" RESET " The total number of system calls was " BOLD
-              "%d" RESET ".\n",
-          counter);
+          DIM "[RESULT]" RESET " " BOLD "%11s" RESET "\t" BOLD "%15d" RESET
+              "\n",
+          "TOTAL", counter);
 
   return 0;
 }
