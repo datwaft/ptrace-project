@@ -36,13 +36,18 @@ char getchar_without_echo(void) {
 
 void print_system_call(struct user_regs_struct regs) {
   // Obtain timestamp
-  time_t t = time(NULL);
-  struct tm *tm = localtime(&t);
+  struct timeval tv;
+  gettimeofday(&tv, NULL);
+  struct tm *tm = localtime(&tv.tv_sec);
   char timestamp[64];
-  strftime(timestamp, sizeof(timestamp), "%Y-%m-%dT%H:%M:%S", tm);
+  char milliseconds[8];
+  strftime(timestamp, sizeof(timestamp), "%H:%M:%S", tm);
+  sprintf(milliseconds, ".%06ld", tv.tv_usec);
+  strcat(timestamp, milliseconds);
   // Print information regarding the system call
   fprintf(stderr,
-          DIM "[%s]" RESET " system call " BLUE "%lld" RESET " called with { "
+          DIM "[%s]" RESET " "
+              "system call " BLUE "%lld" RESET " called with { "
               "%%rdi: " GREEN "%#llx" RESET ", "
               "%%rsi: " GREEN "%#llx" RESET ", "
               "%%rdx: " GREEN "%#llx" RESET ", "
