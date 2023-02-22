@@ -60,6 +60,7 @@ int do_child(int argc, char *argv[]) {
 
 int do_trace(pid_t child, struct opts options) {
   int counter = 0;
+  int table[512] = {0};
 
   int status;
   waitpid(child, &status, 0);
@@ -81,12 +82,23 @@ int do_trace(pid_t child, struct opts options) {
       getchar_without_echo();
     }
     counter += 1;
+    table[regs.orig_rax] += 1;
     // ---
+  }
+
+  for (size_t system_call = 0; system_call < 512; system_call++) {
+    if (table[system_call] != 0) {
+      fprintf(stderr,
+              DIM "[RESULT]" RESET " system call " BLUE "%zu" RESET
+                  " was called " BOLD "%d" RESET " times.\n",
+              system_call, table[system_call]);
+    }
   }
   fprintf(stderr,
           DIM "[RESULT]" RESET " The total number of system calls was " BOLD
               "%d" RESET ".\n",
           counter);
+
   return 0;
 }
 
