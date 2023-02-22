@@ -17,6 +17,11 @@
 #define GREEN "\x1b[32m"
 #define BLUE "\x1b[34m"
 
+struct opts {
+  bool verbose;
+  bool pause;
+};
+
 // This snippet was inspired by https://stackoverflow.com/a/24830768/10702981
 char getchar_without_echo(void) {
   struct termios old;
@@ -47,54 +52,61 @@ void print_system_call(struct user_regs_struct regs) {
          regs.r8, regs.r9);
 }
 
+int do_child(int argc, char *argv[]) {
+  ptrace(PTRACE_TRACEME);
+  return execvp(argv[0], argv);
+}
+
+int do_trace(pid_t child, struct opts options) {
+  bool in_call = false;
+  int counter = 0;
+
+  int status;
+  waitpid(child, &status, 0);
+  while (WIFSTOPPED(status) && WSTOPSIG(status) == SIGTRAP) {
+    if (!in_call) { // While the system call is executing
+      struct user_regs_struct regs;
+      ptrace(PTRACE_GETREGS, child, NULL, &regs);
+      if (options.verbose) {
+        print_system_call(regs);
+      }
+
+      in_call = true;
+      counter += 1;
+
+      if (options.pause) {
+        getchar_without_echo();
+      }
+    } else { // After the system call has finished
+      in_call = false;
+    }
+    ptrace(PTRACE_SYSCALL, child, NULL, 0);
+    waitpid(child, &status, 0);
+  }
+  printf(DIM "[RESULT]" RESET " The total number of system calls was " BOLD
+             "%d" RESET ".\n",
+         counter);
+  return 0;
+}
+
 int main(int argc, char *argv[]) {
-  bool verbose = true;
-  bool pause = false;
+  struct opts options = {
+      .verbose = true,
+      .pause = false,
+  };
 
   pid_t pid = fork();
 
   switch (pid) {
   // On error
-  case -1: {
+  case -1:
     perror("fork");
-    exit(1);
-  }
+    return 1;
   // On child process
-  case 0: {
-    ptrace(PTRACE_TRACEME);
-    execvp(argv[1], argv + 1);
-  }
+  case 0:
+    return do_child(argc - 1, argv + 1);
   // On parent process
-  default: {
-    bool in_call = false;
-    int counter = 0;
-
-    int status;
-    wait(&status);
-    while (WIFSTOPPED(status) && WSTOPSIG(status) == SIGTRAP) {
-      struct user_regs_struct regs;
-      ptrace(PTRACE_GETREGS, pid, NULL, &regs);
-      if (!in_call) {
-        if (verbose) {
-          print_system_call(regs);
-        }
-        in_call = true;
-        counter += 1;
-      } else {
-        in_call = false;
-      }
-      if (pause) {
-        getchar_without_echo();
-      }
-      ptrace(PTRACE_SYSCALL, pid, NULL, 0);
-      wait(&status);
-    }
-    if (WIFEXITED(status) || WIFSIGNALED(status)) {
-      printf(DIM "[RESULT]" RESET " The total number of system calls was " BOLD
-                 "%d" RESET ".\n",
-             counter);
-      exit(0);
-    }
-  }
+  default:
+    return do_trace(pid, options);
   }
 }
