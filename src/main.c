@@ -41,15 +41,16 @@ void print_system_call(struct user_regs_struct regs) {
   char timestamp[64];
   strftime(timestamp, sizeof(timestamp), "%Y-%m-%dT%H:%M:%S", tm);
   // Print information regarding the system call
-  printf(DIM "[%s]" RESET " system call " BLUE "%lld" RESET " called with { "
-             "%%rdi: " GREEN "%#llx" RESET ", "
-             "%%rsi: " GREEN "%#llx" RESET ", "
-             "%%rdx: " GREEN "%#llx" RESET ", "
-             "%%r10: " GREEN "%#llx" RESET ", "
-             "%%r8: " GREEN "%#llx" RESET ", "
-             "%%r9: " GREEN "%#llx" RESET " }.\n",
-         timestamp, regs.orig_rax, regs.rdi, regs.rsi, regs.rdx, regs.r10,
-         regs.r8, regs.r9);
+  fprintf(stderr,
+          DIM "[%s]" RESET " system call " BLUE "%lld" RESET " called with { "
+              "%%rdi: " GREEN "%#llx" RESET ", "
+              "%%rsi: " GREEN "%#llx" RESET ", "
+              "%%rdx: " GREEN "%#llx" RESET ", "
+              "%%r10: " GREEN "%#llx" RESET ", "
+              "%%r8: " GREEN "%#llx" RESET ", "
+              "%%r9: " GREEN "%#llx" RESET " }.\n",
+          timestamp, regs.orig_rax, regs.rdi, regs.rsi, regs.rdx, regs.r10,
+          regs.r8, regs.r9);
 }
 
 int do_child(int argc, char *argv[]) {
@@ -83,9 +84,10 @@ int do_trace(pid_t child, struct opts options) {
     ptrace(PTRACE_SYSCALL, child, NULL, 0);
     waitpid(child, &status, 0);
   }
-  printf(DIM "[RESULT]" RESET " The total number of system calls was " BOLD
-             "%d" RESET ".\n",
-         counter);
+  fprintf(stderr,
+          DIM "[RESULT]" RESET " The total number of system calls was " BOLD
+              "%d" RESET ".\n",
+          counter);
   return 0;
 }
 
