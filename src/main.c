@@ -22,6 +22,76 @@ struct opts {
   bool pause;
 };
 
+char getchar_without_echo(void);
+
+void print_system_call(struct user_regs_struct regs);
+
+void print_table(int table[], int total);
+
+int do_child(int argc, char *argv[]);
+
+int do_trace(pid_t child, struct opts options);
+
+int main(int argc, char *argv[]) {
+  struct opts options = {
+      .verbose = true,
+      .pause = false,
+  };
+
+  pid_t pid = fork();
+
+  switch (pid) {
+  // On error
+  case -1:
+    perror("fork");
+    return 1;
+  // On child process
+  case 0:
+    return do_child(argc - 1, argv + 1);
+  // On parent process
+  default:
+    return do_trace(pid, options);
+  }
+}
+
+int do_child(int argc, char *argv[]) {
+  ptrace(PTRACE_TRACEME);
+  return execvp(argv[0], argv);
+}
+
+int do_trace(pid_t child, struct opts options) {
+  int counter = 0;
+  int table[512] = {0};
+
+  int status;
+  waitpid(child, &status, 0);
+  while (WIFSTOPPED(status) && WSTOPSIG(status) == SIGTRAP) {
+    ptrace(PTRACE_SYSCALL, child, NULL, 0);
+    waitpid(child, &status, 0);
+    // While the system call is executing
+    struct user_regs_struct regs;
+    ptrace(PTRACE_GETREGS, child, NULL, &regs);
+    // ---
+
+    ptrace(PTRACE_SYSCALL, child, NULL, 0);
+    waitpid(child, &status, 0);
+    // After the system call finished executing
+    if (options.verbose) {
+      print_system_call(regs);
+    }
+    if (options.pause) {
+      getchar_without_echo();
+    }
+    counter += 1;
+    table[regs.orig_rax] += 1;
+    // ---
+  }
+
+  print_table(table, counter);
+
+  return 0;
+}
+
 // This snippet was inspired by https://stackoverflow.com/a/24830768/10702981
 char getchar_without_echo(void) {
   struct termios old;
@@ -58,39 +128,7 @@ void print_system_call(struct user_regs_struct regs) {
           regs.r8, regs.r9);
 }
 
-int do_child(int argc, char *argv[]) {
-  ptrace(PTRACE_TRACEME);
-  return execvp(argv[0], argv);
-}
-
-int do_trace(pid_t child, struct opts options) {
-  int counter = 0;
-  int table[512] = {0};
-
-  int status;
-  waitpid(child, &status, 0);
-  while (WIFSTOPPED(status) && WSTOPSIG(status) == SIGTRAP) {
-    ptrace(PTRACE_SYSCALL, child, NULL, 0);
-    waitpid(child, &status, 0);
-    // While the system call is executing
-    struct user_regs_struct regs;
-    ptrace(PTRACE_GETREGS, child, NULL, &regs);
-    // ---
-
-    ptrace(PTRACE_SYSCALL, child, NULL, 0);
-    waitpid(child, &status, 0);
-    // After the system call finished executing
-    if (options.verbose) {
-      print_system_call(regs);
-    }
-    if (options.pause) {
-      getchar_without_echo();
-    }
-    counter += 1;
-    table[regs.orig_rax] += 1;
-    // ---
-  }
-
+void print_table(int table[], int total) {
   fprintf(stderr, DIM "[RESULT]" RESET " " BOLD "SYSTEM CALL" RESET "\t" BOLD
                       "NUMBER OF CALLS" RESET "\n");
   fprintf(stderr, DIM "[RESULT]" RESET " " BOLD "-----------" RESET "\t" BOLD
@@ -109,29 +147,5 @@ int do_trace(pid_t child, struct opts options) {
   fprintf(stderr,
           DIM "[RESULT]" RESET " " BOLD "%11s" RESET "\t" BOLD "%15d" RESET
               "\n",
-          "TOTAL", counter);
-
-  return 0;
-}
-
-int main(int argc, char *argv[]) {
-  struct opts options = {
-      .verbose = true,
-      .pause = false,
-  };
-
-  pid_t pid = fork();
-
-  switch (pid) {
-  // On error
-  case -1:
-    perror("fork");
-    return 1;
-  // On child process
-  case 0:
-    return do_child(argc - 1, argv + 1);
-  // On parent process
-  default:
-    return do_trace(pid, options);
-  }
+          "TOTAL", total);
 }
