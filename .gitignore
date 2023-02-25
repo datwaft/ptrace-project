@@ -12,3 +12,6 @@ test/bin/
 
 # Personal LSP configuration
 compile_commands.json
+
+rastreador
+rastreador.o
