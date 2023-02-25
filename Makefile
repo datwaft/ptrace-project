@@ -23,9 +23,6 @@ SRCS=$(wildcard $(SRC)/*.c)
 OBJS=$(filter-out $(BIN_OBJS), $(patsubst $(SRC)/%.c, $(OBJ)/%.o, $(SRCS)))
 TESTS=$(wildcard $(TEST)/*.c)
 
-# Docker
-CONTAINER=ptrace-project
-
 # Compilation rules
 .SECONDARY: $(OBJS) $(BIN_OBJS)
 
@@ -75,7 +72,3 @@ run-hooks:
 
 lint:
 	clang-tidy $(SRCS) $(patsubst $(OBJ)/%.o, $(SRC)/%.h, $(OBJS)) $(TESTS)
-
-run-docker: $(BINS)
-	DOCKER_SCAN_SUGGEST=false docker build -qt $(CONTAINER) .
-	docker run $(CONTAINER) $(ARGS)
