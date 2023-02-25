@@ -1,27 +1,27 @@
 # Compilation
-CC=clang
-CFLAGS+= -Wall -Wextra -Wpedantic \
-         -Wformat=2 -Wno-unused-parameter -Wshadow \
-         -Wwrite-strings -Wstrict-prototypes -Wold-style-definition \
-         -Wredundant-decls -Wnested-externs -Wmissing-include-dirs
-CFLAGS+= -std=c11
+CC := clang
+CFLAGS += -Wall -Wextra -Wpedantic \
+					-Wformat=2 -Wno-unused-parameter -Wshadow \
+					-Wwrite-strings -Wstrict-prototypes -Wold-style-definition \
+					-Wredundant-decls -Wnested-externs -Wmissing-include-dirs
+CFLAGS += -std=c11
 
 # Folders
-SRC=src
-OBJ=obj
-BIN=bin
-TEST=test
-TEST_BIN=$(TEST)/bin
+SRC := src
+OBJ := obj
+BIN := bin
+TEST := test
+TEST_BIN := $(TEST)/bin
 
 # Targets
-BINS=$(BIN)/main
-TEST_BINS=$(patsubst $(TEST)/%.c, $(TEST_BIN)/%, $(TESTS))
+BINS := $(BIN)/main
+TEST_BINS := $(patsubst $(TEST)/%.c, $(TEST_BIN)/%, $(TESTS))
 
 # Files
-BIN_OBJS=$(patsubst $(BIN)/%, $(OBJ)/%.o, $(BINS))
-SRCS=$(wildcard $(SRC)/*.c)
-OBJS=$(filter-out $(BIN_OBJS), $(patsubst $(SRC)/%.c, $(OBJ)/%.o, $(SRCS)))
-TESTS=$(wildcard $(TEST)/*.c)
+BIN_OBJS := $(patsubst $(BIN)/%, $(OBJ)/%.o, $(BINS))
+SRCS := $(wildcard $(SRC)/*.c)
+OBJS := $(filter-out $(BIN_OBJS), $(patsubst $(SRC)/%.c, $(OBJ)/%.o, $(SRCS)))
+TESTS := $(wildcard $(TEST)/*.c)
 
 # Compilation rules
 .SECONDARY: $(OBJS) $(BIN_OBJS)
