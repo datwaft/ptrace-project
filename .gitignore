@@ -1,17 +1,11 @@
-# TARGET
-hello
 # OBJ
-obj/
+*.o
+
 # BIN
-bin/
-# TEST_BIN
-test/bin/
+rastreador
 
 # Clangd cache
 .cache/
 
 # Personal LSP configuration
 compile_commands.json
-
-rastreador
-rastreador.o

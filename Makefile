@@ -7,31 +7,29 @@ CFLAGS += -Wall -Wextra -Wpedantic \
 CFLAGS += -std=c11
 
 # Targets
-BINS := rastreador
+TARGET := rastreador
 
 # Files
-BIN_OBJS := $(patsubst %, %.o, $(BINS))
+OBJS := $(patsubst %, %.o, $(TARGET))
 SRCS := $(wildcard *.c)
-OBJS := $(filter-out $(BIN_OBJS), $(patsubst %.c, %.o, $(SRCS)))
 
 # Compilation rules
-.SECONDARY: $(OBJS) $(BIN_OBJS)
+.SECONDARY: $(OBJS)
 
-all: $(BINS)
+all: $(TARGET)
 
-$(BIN)/%: $(OBJ)/%.o $(OBJS) | $(BIN)
+$(TARGET)/%: $(OBJS) | $(TARGET)
 	$(CC) $(CFLAGS) $^ -o $@
 
-# For files without .h counterpart
-$(OBJ)/%.o: $(SRC)/%.c | $(OBJ)
+$(TARGET)/%.o: $(SRC)/%.c | $(OBJS)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-# Pseudo-targets
+# Pseudo-TARGETs
 .PHONY: clean install-hooks run-hooks 
 
 clean:
-	rm $(BIN_OBJS)
-	rm $(BINS)
+	rm -f $(OBJS)
+	rm -f $(TARGET)
 
 install-hooks:
 	pre-commit install
@@ -39,5 +37,3 @@ install-hooks:
 
 run-hooks:
 	pre-commit run --all-files
-
-
