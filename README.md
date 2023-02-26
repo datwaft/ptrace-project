@@ -8,23 +8,28 @@ Elaborado por:
 - Ortiz Ruiz, Victor Adolfo
 - Yip Chen, Michael
 
-## Compilar
-Compilar código fuente
-```sh
+## Extracción
+```console
+$ tar -xvf Abreu-Chaves-Guevara-Ortiz-Yip.tgz
+```
+```console
 $ cd Abreu-Chaves-Guevara-Ortiz-Yip
 ```
-```sh
+
+## Compilar
+Compilar código fuente
+```console
 $ make
 ```
 
 Limpiar
-```sh
+```console
 $ make clean
 ```
 
 ## Rastreador
 Sintaxis
-```sh
+```console
 $ rastreador [opciones rastreador] Prog [opciones de Prog]
 ```
 `[opciones rastreador]`:
@@ -38,10 +43,8 @@ Se utilizó como ejemplo de `Prog` el programa `free` con su opción `-m`
 
 
 rastreador
-```sh
+```console
 $ ./rastreador free -m
-```
-```
                total        used        free      shared  buff/cache   available
 Mem:            7853        3346        1263         734        3244        3481
 Swap:           2047         395        1652
@@ -74,11 +77,8 @@ Swap:           2047         395        1652
 
 
 rastreador `-v`
-```sh
+```console
 $ ./rastreador -v free -m
-```
-
-```log
 [22:27:15.528244] system call 12 called with { %rdi: 0, %rsi: 0x7fffee08ccdc, %rdx: 0, %r10: 0, %r8: 0, %r9: 0x23 }.
 [22:27:15.528461] system call 158 called with { %rdi: 0x3001, %rsi: 0x7fffee08cc90, %rdx: 0x7f286f8503e0, %r10: 0x1, %r8: 0x3, %r9: 0x800 }.
 [22:27:15.528565] system call 9 called with { %rdi: 0, %rsi: 0x2000, %rdx: 0x3, %r10: 0x22, %r8: 0xffffffff, %r9: 0 }.
@@ -129,10 +129,8 @@ Swap:           2047         395        1652
 
 
 rastreador `-V`
-```sh
+```console
 $ ./rastreador -V free -m
-```
-```log
 [22:27:15.528244] system call 12 called with { %rdi: 0, %rsi: 0x7fffee08ccdc, %rdx: 0, %r10: 0, %r8: 0, %r9: 0x23 }.
 [22:27:15.528461] system call 158 called with { %rdi: 0x3001, %rsi: 0x7fffee08cc90, %rdx: 0x7f286f8503e0, %r10: 0x1, %r8: 0x3, %r9: 0x800 }.
 [22:27:15.528565] system call 9 called with { %rdi: 0, %rsi: 0x2000, %rdx: 0x3, %r10: 0x22, %r8: 0xffffffff, %r9: 0 }.
