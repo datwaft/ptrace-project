@@ -1,14 +1,15 @@
+# OBJS
+*.o
+
 # TARGET
-hello
-# OBJ
-obj/
-# BIN
-bin/
-# TEST_BIN
-test/bin/
+rastreador
 
 # Clangd cache
 .cache/
 
 # Personal LSP configuration
 compile_commands.json
+
+# Distribution targets
+*.tar.gz
+*.tgz
