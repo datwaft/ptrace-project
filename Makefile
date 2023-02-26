@@ -16,6 +16,7 @@ TEST_BIN := $(TEST)/bin
 # Targets
 BINS := $(BIN)/main
 TEST_BINS := $(patsubst $(TEST)/%.c, $(TEST_BIN)/%, $(TESTS))
+DIST := Abreu-Chaves-Guevara-Ortiz-Yip.tgz
 
 # Files
 BIN_OBJS := $(patsubst $(BIN)/%, $(OBJ)/%.o, $(BINS))
@@ -23,10 +24,15 @@ SRCS := $(wildcard $(SRC)/*.c)
 OBJS := $(filter-out $(BIN_OBJS), $(patsubst $(SRC)/%.c, $(OBJ)/%.o, $(SRCS)))
 TESTS := $(wildcard $(TEST)/*.c)
 
+# Miscellaneous files
+MAKEFILE := $(lastword $(MAKEFILE_LIST))
+README := README.md
+
 # Compilation rules
 .SECONDARY: $(OBJS) $(BIN_OBJS)
 
 all: $(BINS)
+dist: $(DIST)
 
 $(BIN)/%: $(OBJ)/%.o $(OBJS) | $(BIN)
 	$(CC) $(CFLAGS) $^ -o $@
@@ -51,6 +57,10 @@ $(BIN):
 
 $(TEST_BIN):
 	mkdir $@
+
+# Distribution rules
+$(DIST): $(SRCS) $(MAKEFILE) $(README)
+	tar -zcvf $@ $^
 
 # Pseudo-targets
 .PHONY: test clean install-hooks run-hooks lint run-docker
