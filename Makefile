@@ -1,4 +1,4 @@
-# Compilation
+# Compilation Flags
 CC := clang
 CFLAGS += -Wall -Wextra -Wpedantic \
 					-Wformat=2 -Wno-unused-parameter -Wshadow \
@@ -10,22 +10,22 @@ CFLAGS += -std=c11
 TARGET := rastreador
 
 # Files
-OBJS := $(patsubst %, %.o, $(TARGET))
 SRCS := $(wildcard *.c)
+OBJS := $(patsubst %.c, %.o, $(SRCS))
 
 # Compilation rules
 .SECONDARY: $(OBJS)
 
 all: $(TARGET)
 
-$(TARGET)/%: $(OBJS) | $(TARGET)
+$(TARGET): $(OBJS)
 	$(CC) $(CFLAGS) $^ -o $@
 
-$(TARGET)/%.o: $(SRC)/%.c | $(OBJS)
+%.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
-# Pseudo-TARGETs
-.PHONY: clean install-hooks run-hooks 
+# Pseudo-targets
+.PHONY: clean install-hooks run-hooks
 
 clean:
 	rm -f $(OBJS)
