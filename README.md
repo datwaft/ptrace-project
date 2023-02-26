@@ -13,8 +13,6 @@ Tarea corta creada por:
 ```sh
 # Primero se necesita o clonar el repositorio o extraer el tarball. e.g.
 tar -xvf Abreu-Chaves-Guevara-Ortiz-Yip.tgz
-# Luego de eso se debe navegar a la carpeta extraída de ser necesario.
-cd Abreu-Chaves-Guevara-Ortiz-Yip
 # Luego de eso se necesita compilar el proyecto.
 make
 # Y finalmente se puede ejecutar el proyecto. e.g.
