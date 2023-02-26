@@ -1,7 +1,7 @@
-# OBJ
+# OBJS
 *.o
 
-# BIN
+# TARGET
 rastreador
 
 # Clangd cache
@@ -9,3 +9,7 @@ rastreador
 
 # Personal LSP configuration
 compile_commands.json
+
+# Distribution targets
+*.tar.gz
+*.tgz

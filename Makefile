@@ -8,21 +8,31 @@ CFLAGS += -std=c11
 
 # Targets
 TARGET := rastreador
+DIST := Abreu-Chaves-Guevara-Ortiz-Yip.tgz
 
 # Files
 SRCS := $(wildcard *.c)
 OBJS := $(patsubst %.c, %.o, $(SRCS))
 
+# Miscellaneous files
+MAKEFILE := $(lastword $(MAKEFILE_LIST))
+README := README.md
+
 # Compilation rules
 .SECONDARY: $(OBJS)
 
 all: $(TARGET)
+dist: $(DIST)
 
 $(TARGET): $(OBJS)
 	$(CC) $(CFLAGS) $^ -o $@
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
+
+# Distribution rules
+$(DIST): $(SRCS) $(MAKEFILE) $(README)
+	tar -zcvf $@ $^
 
 # Pseudo-targets
 .PHONY: clean install-hooks run-hooks
