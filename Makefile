@@ -1,4 +1,4 @@
-# Compilation
+# Compilation Flags
 CC := clang
 CFLAGS += -Wall -Wextra -Wpedantic \
 					-Wformat=2 -Wno-unused-parameter -Wshadow \
@@ -6,72 +6,40 @@ CFLAGS += -Wall -Wextra -Wpedantic \
 					-Wredundant-decls -Wnested-externs -Wmissing-include-dirs
 CFLAGS += -std=c11
 
-# Folders
-SRC := src
-OBJ := obj
-BIN := bin
-TEST := test
-TEST_BIN := $(TEST)/bin
-
 # Targets
-BINS := $(BIN)/main
-TEST_BINS := $(patsubst $(TEST)/%.c, $(TEST_BIN)/%, $(TESTS))
+TARGET := rastreador
 DIST := Abreu-Chaves-Guevara-Ortiz-Yip.tgz
 
 # Files
-BIN_OBJS := $(patsubst $(BIN)/%, $(OBJ)/%.o, $(BINS))
-SRCS := $(wildcard $(SRC)/*.c)
-OBJS := $(filter-out $(BIN_OBJS), $(patsubst $(SRC)/%.c, $(OBJ)/%.o, $(SRCS)))
-TESTS := $(wildcard $(TEST)/*.c)
+SRCS := $(wildcard *.c)
+OBJS := $(patsubst %.c, %.o, $(SRCS))
 
 # Miscellaneous files
 MAKEFILE := $(lastword $(MAKEFILE_LIST))
 README := README.md
 
 # Compilation rules
-.SECONDARY: $(OBJS) $(BIN_OBJS)
+.SECONDARY: $(OBJS)
 
-all: $(BINS)
+all: $(TARGET)
 dist: $(DIST)
 
-$(BIN)/%: $(OBJ)/%.o $(OBJS) | $(BIN)
+$(TARGET): $(OBJS)
 	$(CC) $(CFLAGS) $^ -o $@
 
-$(TEST_BIN)/%: $(TEST)/%.c $(OBJS) | $(TEST_BIN)
-	$(CC) $(CFLAGS) $^ -o $@ -lcriterion
-
-# For files with .h counterpart
-$(OBJ)/%.o: $(SRC)/%.c $(SRC)/%.h | $(OBJ)
+%.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
-
-# For files without .h counterpart
-$(OBJ)/%.o: $(SRC)/%.c | $(OBJ)
-	$(CC) $(CFLAGS) -c $< -o $@
-
-# Create folders if they don't exist
-$(OBJ):
-	mkdir $@
-
-$(BIN):
-	mkdir $@
-
-$(TEST_BIN):
-	mkdir $@
 
 # Distribution rules
 $(DIST): $(SRCS) $(MAKEFILE) $(README)
 	tar -zcvf $@ $^
 
 # Pseudo-targets
-.PHONY: test clean install-hooks run-hooks lint run-docker
-
-test: $(TEST_BINS)
-	for test_file in $^; do ./$$test_file; done
+.PHONY: clean install-hooks run-hooks
 
 clean:
-	rm -rf $(OBJ)
-	rm -rf $(BIN)
-	rm -rf $(TEST_BIN)
+	rm -f $(OBJS)
+	rm -f $(TARGET)
 
 install-hooks:
 	pre-commit install
@@ -79,6 +47,3 @@ install-hooks:
 
 run-hooks:
 	pre-commit run --all-files
-
-lint:
-	clang-tidy $(SRCS) $(patsubst $(OBJ)/%.o, $(SRC)/%.h, $(OBJS)) $(TESTS)

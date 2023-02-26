@@ -1,11 +1,8 @@
-# TARGET
-hello
 # OBJ
-obj/
+*.o
+
 # BIN
-bin/
-# TEST_BIN
-test/bin/
+rastreador
 
 # Clangd cache
 .cache/
