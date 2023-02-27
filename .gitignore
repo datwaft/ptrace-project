@@ -13,3 +13,6 @@ compile_commands.json
 # Distribution targets
 *.tar.gz
 *.tgz
+
+# MacOS cache
+.DS_Store
