@@ -40,6 +40,7 @@ $(DIST): $(SRCS) $(MAKEFILE) $(README)
 clean:
 	rm -f $(OBJS)
 	rm -f $(TARGET)
+	rm -f $(DIST)
 
 install-hooks:
 	pre-commit install
