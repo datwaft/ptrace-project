@@ -14,6 +14,7 @@ Tarea corta creada por:
 # Primero se necesita o clonar el repositorio o extraer el tarball. e.g.
 tar -xvf Abreu-Chaves-Guevara-Ortiz-Yip.tgz
 # Luego de eso se necesita compilar el proyecto.
+# Si clang no está instalado o se desea usar otro compilador ejecutar como: make CC=gcc
 make
 # Y finalmente se puede ejecutar el proyecto. e.g.
 ./rastreador -v ls -la
